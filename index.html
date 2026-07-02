@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cell Morphology Analysis Report - Laboratory of Cell Biology</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: #f5f0eb;
+            color: #1a1a1a;
+            padding: 30px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 50px 60px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+        }
+        
+        .report-header {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .report-header .institution {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .report-header h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 8px 0;
+            letter-spacing: 1px;
+        }
+        
+        .report-header .subtitle {
+            font-size: 1.1em;
+            color: #4a4a4a;
+            font-style: italic;
+        }
+        
+        .report-header .report-id {
+            font-size: 0.8em;
+            color: #7a7a7a;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .executive-summary {
+            background: #f8f5f0;
+            padding: 25px 30px;
+            border-left: 4px solid #2c3e50;
+            margin-bottom: 35px;
+            border-radius: 2px;
+        }
+        
+        .executive-summary h3 {
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .executive-summary p {
+            font-size: 0.95em;
+            color: #2d2d2d;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0 35px 0;
+        }
+        
+        .stat-box {
+            background: #f8f5f0;
+            text-align: center;
+            padding: 20px 15px;
+            border-radius: 3px;
+            border: 1px solid #e8e0d8;
+        }
+        
+        .stat-box .number {
+            font-size: 2.4em;
+            font-weight: 700;
+            color: #1a1a1a;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        
+        .stat-box .label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5a5a5a;
+            margin-top: 3px;
+        }
+        
+        .section {
+            margin: 40px 0;
+        }
+        
+        .section h2 {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #1a1a1a;
+            border-bottom: 1px solid #d0c8c0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        
+        .section h2 .section-number {
+            color: #7a7a7a;
+            font-weight: 400;
+            margin-right: 10px;
+        }
+        
+        .patient-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 5px 0;
+        }
+        
+        .patient-tag {
+            background: #2c3e50;
+            color: white;
+            padding: 6px 18px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+        }
+        
+        .patient-tag .cell-count {
+            font-weight: 300;
+            opacity: 0.7;
+            margin-left: 5px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .image-card {
+            border: 1px solid #e0d8d0;
+            border-radius: 3px;
+            overflow: hidden;
+            background: #faf8f5;
+        }
+        
+        .image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .image-card .caption {
+            padding: 12px 20px;
+            background: white;
+            font-size: 0.95em;
+            border-top: 1px solid #e0d8d0;
+            color: #2d2d2d;
+        }
+        
+        .image-card .caption .figure-label {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .image-card .caption .sub {
+            color: #6a6a6a;
+            font-size: 0.9em;
+        }
+        
+        .patient-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 20px 0;
+        }
+        
+        .patient-grid .image-card {
+            border: 1px solid #e0d8d0;
+            border-radius: 3px;
+            overflow: hidden;
+            background: #faf8f5;
+        }
+        
+        .patient-grid .image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .patient-grid .image-card .caption {
+            padding: 10px 16px;
+            background: white;
+            font-size: 0.9em;
+            border-top: 1px solid #e0d8d0;
+            color: #2d2d2d;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 15px 0 10px 0;
+            border: 1px solid #e0d8d0;
+            border-radius: 3px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        
+        table thead {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        table th {
+            padding: 10px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        table td {
+            padding: 8px 15px;
+            border-bottom: 1px solid #e8e0d8;
+        }
+        
+        table tbody tr:nth-child(even) {
+            background: #f8f5f0;
+        }
+        
+        table tbody tr:hover {
+            background: #f0ebe5;
+        }
+        
+        .table-caption {
+            font-size: 0.85em;
+            color: #5a5a5a;
+            padding: 8px 15px;
+            background: #faf8f5;
+            border-top: 1px solid #e0d8d0;
+            font-style: italic;
+        }
+        
+        .report-footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .report-footer .footer-left {
+            font-size: 0.85em;
+            color: #4a4a4a;
+        }
+        
+        .report-footer .footer-left .lab-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .report-footer .footer-right {
+            font-size: 0.8em;
+            color: #6a6a6a;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .report-footer .footer-right .status {
+            color: #2c7a3e;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .patient-grid {
+                grid-template-columns: 1fr;
+            }
+            .report-header h1 {
+                font-size: 1.6em;
+            }
+            .report-footer {
+                flex-direction: column;
+                text-align: center;
+            }
+            .report-footer .footer-right {
+                text-align: center;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 15px;
+            }
+            .container {
+                box-shadow: none;
+                padding: 30px;
+            }
+            .image-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="report-header">
+            <div class="institution">Laboratory of Cell Biology &amp; Tissue Morphology</div>
+            <h1>Cell Morphology Analysis Report</h1>
+            <div class="subtitle">Multi-Patient Histological Characterization Study</div>
+            <div class="report-id">Report ID: CEL-MOR-2026-001 | Date: <span id="reportDate"></span></div>
+        </div>
+
+        <div class="executive-summary">
+            <h3>Executive Summary</h3>
+            <p>
+                This report presents a comprehensive morphological analysis of cellular populations 
+                across multiple patient samples. A total of <strong id="summaryTotalCells">-</strong> cells 
+                were analyzed across <strong id="summaryTotalPatients">-</strong> patients, 
+                identifying <strong id="summaryTotalTypes">-</strong> distinct cell types. 
+                The analysis includes cell type distribution, morphological feature characterization, 
+                and comparative statistics across patients. All measurements were obtained using 
+                standardized histological protocols and computational image analysis.
+            </p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="number" id="totalCells">-</div>
+                <div class="label">Total Cells</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="totalPatients">-</div>
+                <div class="label">Patients</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="totalCellTypes">-</div>
+                <div class="label">Cell Types</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="totalSamples">-</div>
+                <div class="label">Samples</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="section-number">1.0</span> Patient Cohort</h2>
+            <p style="color: #4a4a4a; margin-bottom: 12px; font-size: 0.95em;">
+                The following patients were included in this analysis with their respective cell counts:
+            </p>
+            <div class="patient-list" id="patientBadges">
+                <span style="color: #7a7a7a;">Loading patient data...</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="section-number">2.0</span> Multi-Patient Comparison</h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <img src="comparison_dashboard.png" alt="Comparison Dashboard" 
+                         onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#7a7a7a;\'>comparison_dashboard.png not found</div>'">
+                    <div class="caption">
+                        <span class="figure-label">Figure 1.</span> Comparative analysis of cell populations across patients.
+                        <span class="sub">- Side-by-side comparison of total counts, morphological features, and cell type distributions.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="section-number">3.0</span> Individual Patient Morphological Profiles</h2>
+            <div class="patient-grid" id="patientDashboards">
+                <p style="color: #7a7a7a; grid-column: 1/-1;">Loading patient data...</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="section-number">4.0</span> Cross-Patient Cell Type Analysis</h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <img src="cell_type_comparison.png" alt="Cell Type Comparison"
+                         onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#7a7a7a;\'>cell_type_comparison.png not found</div>'">
+                    <div class="caption">
+                        <span class="figure-label">Figure 2.</span> Cell type morphology comparison across patients.
+                        <span class="sub">- Violin plots showing area distribution for each cell type across the patient cohort.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="section-number">5.0</span> Patient Summary Statistics</h2>
+            <div class="table-container" id="summaryTable">
+                <p style="color: #7a7a7a; padding: 20px;">Loading summary data...</p>
+            </div>
+            <div class="table-caption">
+                Table 1. Comprehensive summary statistics for each patient including total cell counts, 
+                cell type diversity, and mean morphological feature measurements.
+            </div>
+        </div>
+
+        <div class="report-footer">
+            <div class="footer-left">
+                <span class="lab-name">Laboratory of Cell Biology &amp; Tissue Morphology</span><br>
+                Department of Histopathology | Research Division
+            </div>
+            <div class="footer-right">
+                <span class="status">&#9679; Analysis Complete</span><br>
+                Generated: <span id="footerDate"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatDate() {
+            var d = new Date();
+            var months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+            var month = months[d.getMonth()];
+            var day = d.getDate();
+            var year = d.getFullYear();
+            return month + ' ' + day + ', ' + year;
+        }
+        
+        document.getElementById('reportDate').textContent = formatDate();
+        document.getElementById('footerDate').textContent = formatDate();
+
+        async function loadData() {
+            try {
+                var response = await fetch('patient_summary.csv');
+                if (!response.ok) throw new Error('CSV not found');
+                
+                var csvText = await response.text();
+                var data = parseCSV(csvText);
+                
+                var totalCells = 0;
+                for (var i = 0; i < data.length; i++) {
+                    totalCells += parseInt(data[i]['Total Cells'] || 0);
+                }
+                
+                document.getElementById('totalCells').textContent = totalCells.toLocaleString();
+                document.getElementById('totalPatients').textContent = data.length;
+                document.getElementById('totalCellTypes').textContent = data[0]?.['Cell Types'] || 'N/A';
+                document.getElementById('totalSamples').textContent = data[0]?.['Samples'] || 'N/A';
+                
+                document.getElementById('summaryTotalCells').textContent = totalCells.toLocaleString();
+                document.getElementById('summaryTotalPatients').textContent = data.length;
+                document.getElementById('summaryTotalTypes').textContent = data[0]?.['Cell Types'] || 'N/A';
+                
+                var badgesContainer = document.getElementById('patientBadges');
+                var badgeHTML = '';
+                for (var i = 0; i < data.length; i++) {
+                    badgeHTML += '<span class="patient-tag">' + data[i]['Patient'] + ' <span class="cell-count">(' + data[i]['Total Cells'] + ' cells)</span></span>';
+                }
+                badgesContainer.innerHTML = badgeHTML;
+                
+                renderTable(data);
+                loadPatientDashboards(data);
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('patientBadges').innerHTML = 
+                    '<span style="color: #a04040;">Error loading patient data. Please ensure patient_summary.csv exists.</span>';
+                document.getElementById('summaryTable').innerHTML = 
+                    '<p style="color: #a04040; padding: 20px;">Error loading summary data. Please ensure patient_summary.csv exists.</p>';
+            }
+        }
+        
+        function parseCSV(csvText) {
+            var lines = csvText.trim().split('\n');
+            var headers = lines[0].split(',').map(function(h) { return h.trim(); });
+            var data = [];
+            
+            for (var i = 1; i < lines.length; i++) {
+                var values = lines[i].split(',').map(function(v) { return v.trim(); });
+                var row = {};
+                for (var j = 0; j < headers.length; j++) {
+                    row[headers[j]] = values[j] || '';
+                }
+                data.push(row);
+            }
+            return data;
+        }
+        
+        function renderTable(data) {
+            var container = document.getElementById('summaryTable');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="color: #7a7a7a; padding: 20px;">No data available</p>';
+                return;
+            }
+            
+            var headers = Object.keys(data[0]);
+            
+            var html = '<table><thead><tr>';
+            for (var i = 0; i < headers.length; i++) {
+                html += '<th>' + headers[i] + '</th>';
+            }
+            html += '</tr></thead><tbody>';
+            
+            for (var i = 0; i < data.length; i++) {
+                html += '<tr>';
+                for (var j = 0; j < headers.length; j++) {
+                    html += '<td>' + (data[i][headers[j]] || 'N/A') + '</td>';
+                }
+                html += '</tr>';
+            }
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function loadPatientDashboards(data) {
+            var container = document.getElementById('patientDashboards');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="color: #7a7a7a; grid-column: 1/-1;">No patient data available</p>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < data.length; i++) {
+                var patientId = data[i]['Patient'];
+                var cellCount = data[i]['Total Cells'];
+                var imgSrc = 'patient_' + patientId + '_dashboard.png';
+                
+                html += '<div class="image-card">';
+                html += '<img src="' + imgSrc + '" alt="Patient ' + patientId + ' Dashboard" onerror="this.parentElement.innerHTML=\'<div style=\\\'padding:40px;text-align:center;color:#7a7a7a;\\\'>' + imgSrc + ' not found</div>\'">';
+                html += '<div class="caption"><span class="figure-label">Patient ' + patientId + '</span> <span class="sub">- ' + cellCount + ' cells analyzed</span></div>';
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
