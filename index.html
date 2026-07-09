@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cell Morphology Analysis Report</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -64,7 +65,7 @@
         <div class="section">
             <h2><span class="section-number">2.0</span> Multi-Patient Comparison</h2>
             <div class="image-grid">
-                <div class="image-card">
+                <div class="image-card interactive-img">
                     <img src="comparison_dashboard.png" alt="Comparison Dashboard" 
                          onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#7a7a7a;\'>comparison_dashboard.png not found</div>'">
                     <div class="caption">
@@ -87,7 +88,7 @@
         <div class="section">
             <h2><span class="section-number">4.0</span> Cross-Patient Cell Type Analysis</h2>
             <div class="image-grid">
-                <div class="image-card">
+                <div class="image-card interactive-img">
                     <img src="cell_type_comparison.png" alt="Cell Type Comparison"
                          onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#7a7a7a;\'>cell_type_comparison.png not found</div>'">
                     <div class="caption">
@@ -105,7 +106,7 @@
                 Analysis of the 5 samples per patient to assess within-patient consistency and identify anomalies.
             </p>
             <div class="image-grid">
-                <div class="image-card">
+                <div class="image-card interactive-img">
                     <img src="sample_level_variability.png" alt="Sample Level Variability"
                          onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#7a7a7a;\'>sample_level_variability.png not found</div>'">
                     <div class="caption">
@@ -113,7 +114,7 @@
                         <span class="sub">- Line plots showing total cell count, cell type diversity, mean area, and mean eccentricity.</span>
                     </div>
                 </div>
-                <div class="image-card">
+                <div class="image-card interactive-img">
                     <img src="sample_anomalies.png" alt="Sample Anomalies"
                          onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#7a7a7a;\'>sample_anomalies.png not found</div>'">
                     <div class="caption">
@@ -159,7 +160,35 @@
         </div>
     </div>
 
+    <!-- ===== LIGHTBOX MODAL ===== -->
+    <div id="lightbox" class="lightbox" style="display:none;">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img class="lightbox-content" id="lightboxImg">
+    </div>
+
     <script>
+        // ===== LIGHTBOX FUNCTIONS =====
+        function openLightbox(src) {
+            var lightbox = document.getElementById('lightbox');
+            var img = document.getElementById('lightboxImg');
+            img.src = src;
+            lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            var lightbox = document.getElementById('lightbox');
+            lightbox.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
+        // ===== FORMAT DATE =====
         function formatDate() {
             var d = new Date();
             var months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -169,6 +198,7 @@
         document.getElementById('reportDate').textContent = formatDate();
         document.getElementById('footerDate').textContent = formatDate();
 
+        // ===== PARSE CSV =====
         function parseCSV(csvText) {
             var lines = csvText.trim().split('\n');
             var headers = lines[0].split(',').map(function(h) { return h.trim(); });
@@ -184,7 +214,8 @@
             return data;
         }
 
-        function renderTable(data, containerId) {
+        // ===== RENDER TABLE WITH D3 (with reset on third click) =====
+        function renderTable(data, containerId, excludeColumns) {
             var container = document.getElementById(containerId);
             if (!container) return;
             
@@ -193,31 +224,128 @@
                 return;
             }
             
+            var originalData = data.slice();
+            
             var headers = Object.keys(data[0]);
-            var html = '<table><thead><tr>';
-            for (var i = 0; i < headers.length; i++) {
-                html += '<th>' + headers[i] + '</th>';
+            if (excludeColumns) {
+                headers = headers.filter(function(h) {
+                    return !excludeColumns.includes(h);
+                });
             }
-            html += '</tr></thead><tbody>';
             
-            for (var i = 0; i < data.length; i++) {
-                html += '<tr>';
-                for (var j = 0; j < headers.length; j++) {
-                    var value = data[i][headers[j]] || 'N/A';
-                    // Check if this is an anomaly row (for sample summary)
-                    if (headers[j] === 'sample' && value.indexOf('Anomaly') > -1) {
-                        html += '<td style="color: #e53e3e; font-weight: bold;">' + value + '</td>';
-                    } else {
-                        html += '<td>' + value + '</td>';
-                    }
+            container.innerHTML = '';
+            
+            var table = d3.select(container)
+                .append('table')
+                .attr('class', 'sortable')
+                .style('width', '100%')
+                .style('border-collapse', 'collapse');
+            
+            var thead = table.append('thead');
+            var headerRow = thead.append('tr');
+            
+            headers.forEach(function(h) {
+                headerRow.append('th')
+                    .text(h)
+                    .attr('data-column', h)
+                    .attr('data-order', 'none')
+                    .style('padding', '10px 15px')
+                    .style('text-align', 'left')
+                    .style('font-weight', '600')
+                    .style('font-size', '0.85em')
+                    .style('text-transform', 'uppercase')
+                    .style('letter-spacing', '0.5px')
+                    .style('background', '#2c3e50')
+                    .style('color', 'white')
+                    .style('position', 'relative')
+                    .append('span')
+                    .attr('class', 'sort-arrow')
+                    .html(' ⇅');
+            });
+            
+            var tbody = table.append('tbody');
+            
+            function renderRows(dataToRender) {
+                tbody.selectAll('*').remove();
+                
+                dataToRender.forEach(function(row, rowIndex) {
+                    var tr = tbody.append('tr')
+                        .style('transition', 'background 0.2s')
+                        .on('mouseover', function() {
+                            d3.select(this).style('background', '#f0ebe5');
+                        })
+                        .on('mouseout', function() {
+                            d3.select(this).style('background', '');
+                        })
+                        .on('click', function() {
+                            d3.selectAll('tbody tr').classed('highlight-row', false);
+                            d3.select(this).classed('highlight-row', true);
+                        });
+                    
+                    headers.forEach(function(h) {
+                        var value = row[h] || 'N/A';
+                        var td = tr.append('td')
+                            .style('padding', '8px 15px')
+                            .style('border-bottom', '1px solid #e8e0d8');
+                        
+                        if (h === 'sample' && value.indexOf('Anomaly') > -1) {
+                            td.style('color', '#e53e3e')
+                              .style('font-weight', 'bold')
+                              .text(value);
+                        } else {
+                            td.text(value);
+                        }
+                    });
+                });
+            }
+            
+            renderRows(originalData);
+            
+            // Sort with reset on third click
+            headerRow.selectAll('th').on('click', function() {
+                var column = d3.select(this).attr('data-column');
+                var currentOrder = d3.select(this).attr('data-order') || 'none';
+                
+                var newOrder;
+                if (currentOrder === 'none' || currentOrder === 'desc') {
+                    newOrder = 'asc';
+                } else if (currentOrder === 'asc') {
+                    newOrder = 'desc';
                 }
-                html += '</tr>';
-            }
-            
-            html += '</tbody></table>';
-            container.innerHTML = html;
+                
+                headerRow.selectAll('th .sort-arrow').html(' ⇅');
+                headerRow.selectAll('th').attr('data-order', 'none');
+                
+                if (newOrder === 'asc') {
+                    d3.select(this).select('.sort-arrow').html(' ▲');
+                    d3.select(this).attr('data-order', 'asc');
+                } else if (newOrder === 'desc') {
+                    d3.select(this).select('.sort-arrow').html(' ▼');
+                    d3.select(this).attr('data-order', 'desc');
+                }
+                
+                var sortedData;
+                if (newOrder === 'asc' || newOrder === 'desc') {
+                    sortedData = originalData.slice().sort(function(a, b) {
+                        var aVal = a[column] || '';
+                        var bVal = b[column] || '';
+                        var aNum = parseFloat(aVal);
+                        var bNum = parseFloat(bVal);
+                        
+                        if (!isNaN(aNum) && !isNaN(bNum)) {
+                            return newOrder === 'asc' ? aNum - bNum : bNum - aNum;
+                        }
+                        return newOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                    });
+                } else {
+                    sortedData = originalData.slice();
+                }
+                
+                renderRows(sortedData);
+            });
         }
 
+        // ===== LOAD PATIENT DASHBOARDS =====
         function loadPatientDashboards(data) {
             var container = document.getElementById('patientDashboards');
             if (!container) return;
@@ -228,23 +356,23 @@
             }
             
             var html = '';
-            for (var i = 0; i < data.length; i++) {
-                var patientId = data[i]['Patient'];
-                var cellCount = data[i]['Total Cells'];
+            data.forEach(function(row) {
+                var patientId = row['Patient'];
+                var cellCount = row['Total Cells'];
                 var imgSrc = 'patient_' + patientId + '_dashboard.png';
                 
-                html += '<div class="image-card">';
+                html += '<div class="image-card interactive-img" onclick="openLightbox(\'' + imgSrc + '\')">';
                 html += '<img src="' + imgSrc + '" alt="Patient ' + patientId + ' Dashboard" onerror="this.parentElement.innerHTML=\'<div style=\\\'padding:40px;text-align:center;color:#7a7a7a;\\\'>' + imgSrc + ' not found</div>\'">';
                 html += '<div class="caption"><span class="figure-label">Patient ' + patientId + '</span> <span class="sub">- ' + cellCount + ' cells analyzed</span></div>';
                 html += '</div>';
-            }
+            });
             
             container.innerHTML = html;
         }
 
+        // ===== LOAD DATA =====
         async function loadData() {
             try {
-                // Load patient summary
                 var response = await fetch('patient_summary.csv');
                 if (!response.ok) throw new Error('Patient CSV not found');
                 
@@ -272,8 +400,29 @@
                 }
                 badgesContainer.innerHTML = badgeHTML;
                 
+                d3.selectAll('.patient-tag').on('click', function() {
+                    var patient = this.textContent.split(' ')[0];
+                    var cards = document.querySelectorAll('.patient-grid .image-card');
+                    cards.forEach(function(card, index) {
+                        var label = card.querySelector('.caption .figure-label');
+                        if (label && label.textContent === 'Patient ' + patient) {
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            card.style.boxShadow = '0 0 0 3px #667eea';
+                            setTimeout(function() {
+                                card.style.boxShadow = '';
+                            }, 3000);
+                        }
+                    });
+                });
+                
                 renderTable(data, 'summaryTable');
                 loadPatientDashboards(data);
+                
+                document.querySelectorAll('.interactive-img img').forEach(function(img) {
+                    img.parentElement.addEventListener('click', function() {
+                        openLightbox(img.src);
+                    });
+                });
                 
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -283,14 +432,13 @@
                     '<p style="color: #a04040; padding: 20px;">Error loading summary data.</p>';
             }
             
-            // Load sample summary
             try {
                 var sampleResponse = await fetch('sample_summary.csv');
                 if (!sampleResponse.ok) throw new Error('Sample CSV not found');
                 
                 var sampleCsvText = await sampleResponse.text();
                 var sampleData = parseCSV(sampleCsvText);
-                renderTable(sampleData, 'sampleSummaryTable');
+                renderTable(sampleData, 'sampleSummaryTable', ['sample_num']);
                 
             } catch (error) {
                 console.error('Error loading sample data:', error);

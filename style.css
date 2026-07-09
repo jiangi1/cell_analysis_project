@@ -370,3 +370,92 @@ table tbody tr:hover {
         transform: none;
     }
 }
+
+/* ===== LIGHTBOX ===== */
+.lightbox {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+    cursor: default;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    color: white;
+    font-size: 40px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.lightbox-close:hover {
+    color: #ccc;
+    transform: rotate(90deg);
+}
+
+/* ===== INTERACTIVE IMAGES ===== */
+.interactive-img {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.interactive-img:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+/* ===== SORTABLE TABLES ===== */
+.sortable th {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable th:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6a4a9a 100%);
+}
+
+.sortable th .sort-arrow {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.7em;
+    opacity: 0.5;
+}
+
+.sortable th.active .sort-arrow {
+    opacity: 1;
+}
+
+/* ===== HIGHLIGHT ROW ===== */
+.highlight-row {
+    background: #e8f4f8 !important;
+    border-left: 4px solid #667eea;
+}
+
+/* ===== PATIENT BADGES ===== */
+.patient-tag {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.patient-tag:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
