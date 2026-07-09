@@ -44,7 +44,7 @@
                 <div class="label">Cell Types</div>
             </div>
             <div class="stat-box">
-                <div class="number" id="totalSamples">-</div>
+                <div class="number" id="totalSamples">25</div>
                 <div class="label">Samples</div>
             </div>
         </div>
@@ -131,7 +131,7 @@
                 <p style="color: #7a7a7a; padding: 20px;">Loading sample summary data...</p>
             </div>
             <div class="table-caption">
-                Table 2. Summary statistics for each patient-sample combination including total cell counts, 
+                Table 1. Summary statistics for each patient-sample combination including total cell counts, 
                 cell type diversity, and mean morphological feature measurements.
             </div>
         </div>
@@ -143,7 +143,7 @@
                 <p style="color: #7a7a7a; padding: 20px;">Loading summary data...</p>
             </div>
             <div class="table-caption">
-                Table 1. Comprehensive summary statistics for each patient including total cell counts, 
+                Table 2. Comprehensive summary statistics for each patient including total cell counts, 
                 cell type diversity, and mean morphological feature measurements.
             </div>
         </div>
@@ -259,7 +259,7 @@
                 document.getElementById('totalCells').textContent = totalCells.toLocaleString();
                 document.getElementById('totalPatients').textContent = data.length;
                 document.getElementById('totalCellTypes').textContent = data[0]?.['Cell Types'] || 'N/A';
-                document.getElementById('totalSamples').textContent = data[0]?.['Samples'] || 'N/A';
+                document.getElementById('totalSamples').textContent = '25';
                 
                 document.getElementById('summaryTotalCells').textContent = totalCells.toLocaleString();
                 document.getElementById('summaryTotalPatients').textContent = data.length;
